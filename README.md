@@ -1,116 +1,140 @@
-# Real-time Data Pipeline Simulation (Kafka + Airflow + PostgreSQL + Tableau)
+# Real-time Data Pipeline Simulation  
+**Kafka + Airflow + PostgreSQL + Tableau**
 
-This side project demonstrates a complete **real-time data pipeline** architecture using:
-
-> **Kafka (stream ingestion)** + **Airflow + Pandas (ETL orchestration)** + **PostgreSQL (storage)** + **Tableau (visualization)**
-
----
-
-## 📌 Project Goals
-
-- Gain hands-on experience with modern data engineering tools
-- Build a full-stack real-time data pipeline from ingestion to visualization
-- Use this project as a portfolio to show practical understanding of ETL and streaming architecture
-- Support future extensions such as machine learning and feedback loops via Kafka
+This project demonstrates a real-time data pipeline that simulates streaming sales data from a CSV file into a PostgreSQL database using Kafka and Airflow, with final visualization in Tableau.
 
 ---
 
-## 🔧 Tech Stack
+## 🎯 Goals
 
-| Layer            | Tool                      | Description                                  |
-|------------------|---------------------------|----------------------------------------------|
-| Data Ingestion   | **Apache Kafka**          | Real-time streaming via Kafka Producer       |
-| Workflow Engine  | **Apache Airflow**        | DAG-based ETL orchestration                  |
-| Transformation   | **Pandas** (Python)       | Cleansing, transformation, enrichment        |
-| Data Storage     | **PostgreSQL**            | Relational database for structured data      |
-| Visualization    | **Tableau**               | Dashboards for sales & revenue insights      |
-| Containerization | **Docker Compose**        | Isolated, reproducible local dev environment |
+- Understand how to build a full real-time ETL pipeline
+- Practice with Kafka, Airflow DAGs, PostgreSQL, and Tableau
+- Use as a practical portfolio project when applying for co-op / internship
 
 ---
 
-## 📁 Project Structure
+## 🔧 Stack Overview
 
-real_time_pipeline/
-│
-├── dags/               # Airflow DAG scripts
-│   └── etl_dag.py
-│
-├── kafka_producer/     # Kafka Producer (Python script)
-│   └── producer.py
-│
-├── data/               # Raw CSV batches from producer
-│   └── superstore.csv
-│
-├── docker-compose.yml  # Kafka + Airflow + PostgreSQL setup
-│
-└── README.md
+| Step            | Tool            | Role                                 |
+|-----------------|------------------|--------------------------------------|
+| Data Ingestion  | Kafka Producer   | Sends records from CSV to Kafka topic |
+| Stream Engine   | Apache Kafka     | Transports messages in real time     |
+| ETL Workflow    | Airflow + Pandas | Pulls data → cleans it → loads into DB |
+| Storage         | PostgreSQL       | Stores structured sales data         |
+| Visualization   | Tableau          | Analyzes sales trends & patterns     |
+| Dev Environment | Docker Compose   | Local orchestration of services      |
 
 ---
 
-## 🔄 Data Flow Overview
+## 🔄 Data Flow
 
-### 1. **Data Source: CSV → Kafka Producer**
-- 📦 Source: [Superstore Dataset](https://www.kaggle.com/datasets/vivek468/superstore-dataset-final) from Kaggle  
-- 🐍 Python reads CSV line-by-line and sends each record as a JSON message to `sales_topic` in Kafka
+1. **CSV → Kafka**  
+   Python producer reads `Sample-Superstore.csv` line-by-line and pushes messages to Kafka topic `sales_topic`.
 
-### 2. **Stream Ingest: Kafka**
-- Kafka handles real-time delivery via topic `sales_topic`
-- Broker address: `localhost:9092` (Dockerized)
+2. **Kafka → Airflow DAG**  
+   Airflow DAG reads from Kafka (via CSV or consumer logic), processes messages with Pandas.
 
-### 3. **ETL: Airflow + Pandas**
-- Airflow DAG reads from Kafka (via intermediate CSV)
-- Pandas cleans & transforms data (e.g., column filtering, enrichment)
-- Result is inserted into PostgreSQL
+3. **Transform → PostgreSQL**  
+   Cleaned data is inserted into a single table: `superstore_sales`.
 
-### 4. **Storage: PostgreSQL**
-- Tables: `orders`, `products`, `customers` (TBD)
-- Structured schema for downstream analytics
-- Easy integration with BI tools (Tableau)
-
-### 5. **Visualization: Tableau**
-- PostgreSQL is connected as a data source
-- Example dashboards:
-  - 📊 Top-Selling Products
-  - 📈 Daily / Monthly Revenue Trends
-  - 👤 Customer Purchase Patterns
+4. **PostgreSQL → Tableau**  
+   Tableau connects to the DB and visualizes revenue, product performance, customer patterns, etc.
 
 ---
 
-## 🧪 Local Setup (Coming Soon)
+## 🐍 Kafka Producer Script (producer.py)
 
-> Full instructions to build and test this pipeline will be provided after DAG and DB logic is finalized.
+This script simulates real-time data ingestion by reading the Superstore CSV file line-by-line and sending each row as a JSON message to the Kafka topic sales_topic.
+
+🔹 Features:
+	•	Uses Python csv.DictReader to parse structured rows  
+	•	Sends each record to Kafka with a 1-second interval (time.sleep(1))  
+	•	Converts each row into JSON format via KafkaProducer with custom serializer  
+	•	Controlled stream to help visualize data movement through the pipeline  
+
+📌 Code Summary:
+
+```python
+with open(source_file, newline='', encoding='cp1252') as csvfile:
+    reader = csv.DictReader(csvfile)
+    for row in reader:
+        producer.send(topic_name, value=row)
+        time.sleep(1)
+```
+
+✅ Helps simulate a real-time stream from static CSV  
+✅ Makes data movement transparent for ETL pipeline validation  
+✅ Supports understanding of Kafka message publishing mechanics  
 
 ---
 
-## 🚀 Milestone Checklist
+## 📥 Kafka Consumer (Batch to CSV)
 
-- [x] Kafka Producer working and sending messages  
-- [x] Kafka topic connection verified  
-- [ ] Airflow DAG parses and transforms messages  
-- [ ] PostgreSQL ingestion tested  
-- [ ] Tableau visualization connected  
-- [ ] Optional: ML-based predictions via Kafka loopback
+The consumer_batch_to_csv.py script listens to the sales_topic Kafka topic and collects messages in batches of 100 records. Once a batch is complete, it saves the data as a new CSV file in the data/ folder.
+This simulates a mini-batch ETL pipeline and allows for clear inspection of message flow from Kafka before insertion into the database.
+
+🔹 Core Logic
+
+```python
+if len(records) == BATCH_SIZE:
+    df = pd.DataFrame(records)
+    file_path = os.path.join(DATA_DIR, f'batch_{batch_number}.csv')
+    df.to_csv(file_path, index=False)
+```
+
+✅ Why it’s included  
+	•	Enables inspection of data before transformation  
+	•	Breaks down real-time stream into manageable files  
+	•	Useful for debugging and batch-based processing with Airflow DAGs
+
+---
+
+## 🧱 PostgreSQL Table Schema
+
+The cleaned data from Airflow is stored in the superstore_sales table.
+This table was designed to capture essential sales metrics and metadata for analysis in Tableau.
+
+```sql
+CREATE TABLE superstore_sales (
+    row_id SERIAL PRIMARY KEY,
+    order_id VARCHAR(20),
+    order_date DATE,
+    ship_date DATE,
+    ship_mode VARCHAR(50),
+    customer_id VARCHAR(20),
+    customer_name VARCHAR(100),
+    segment VARCHAR(50),
+    country VARCHAR(50),
+    city VARCHAR(50),
+    state VARCHAR(50),
+    postal_code VARCHAR(20),
+    region VARCHAR(20),
+    product_id VARCHAR(20),
+    category VARCHAR(50),
+    sub_category VARCHAR(50),
+    product_name TEXT,
+    sales NUMERIC(10, 2),
+    quantity INT,
+    discount NUMERIC(5, 2),
+    profit NUMERIC(10, 2),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+✅ This schema is based on the Superstore dataset  
+✅ Optimized for business intelligence queries: revenue trends, product performance, and customer segmentation
 
 ---
 
 ## ⚠️ Notes
+	•	Docker compose is used for local development
+	•	docker-compose down -v will delete all volumes including PostgreSQL data
+	•	Set KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 for host access
 
-- Make sure `KAFKA_ADVERTISED_LISTENERS` is set to `PLAINTEXT://localhost:9092` for Mac/host access
-- Running `docker-compose down -v` will also delete volumes (including PostgreSQL data)
-- Use `docker exec` to test Kafka topic creation:  
-  ```bash
-  docker exec -it real_time_pipeline-kafka-1 kafka-topics --bootstrap-server localhost:9092 --list
-  
-## ⚠️ ✨ Future Plans
-	•	Add ml_predictor.py that listens to cleaned data → runs model → sends predictions back to Kafka
-	•	Join with user profile data for richer insight
-	•	Use Apache Spark for scaling transformation logic
+---
 
-⸻
+### 👤 Author
 
-## ⚠️ 👤 Author
-
-Suyeon Kim
-Data Engineering Student | Ex-Java Backend Dev | Passionate about streaming systems, ETL, and ML
+Suyeon Kim  
+Data Engineering Student | Ex-Java Backend Dev  
 📍 Vancouver, Canada
-🔗 LinkedIn
