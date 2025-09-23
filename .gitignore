@@ -1,0 +1,67 @@
+# Byte-compiled / optimized / etc.
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+venv/
+.env/
+*.env
+
+# Airflow-specific
+airflow/airflow.db
+airflow/airflow-webserver.pid
+airflow/logs/
+airflow/__pycache__/
+
+# Local PostgreSQL data (if any)
+postgres-data/
+*.pgsql
+
+# Docker volumes & data
+*.pid
+*.log
+*.sock
+
+# Jupyter/IPython (in case you use it for EDA or notes)
+.ipynb_checkpoints/
+
+# OS & Editor junk
+.DS_Store
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Data (raw / generated)
+data/*.csv
+data/*.json
+data/*.parquet
+
+# Output files
+*.pdf
+*.png
+*.jpg
+*.jpeg
+
+# __Test or dev artifacts__
+*.db
+*.sqlite3
+*.bak
+*.tmp
+*.old
+
+# Compiled C extensions
+*.so
+
+# Kafka topic backups or dumps
+kafka_producer/*.log
+kafka_producer/__pycache__/
+
+# Python notebooks outputs
+*.out
+*.ipynb
+
+# Tableau temp/cache (in case)
+*.twb~
+*.bak.twb
