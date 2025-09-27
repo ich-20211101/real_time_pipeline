@@ -95,29 +95,34 @@ The cleaned data from Airflow is stored in the superstore_sales table.
 This table was designed to capture essential sales metrics and metadata for analysis in Tableau.
 
 ```sql
-CREATE TABLE superstore_sales (
-    row_id SERIAL PRIMARY KEY,
-    order_id VARCHAR(20),
-    order_date DATE,
-    ship_date DATE,
-    ship_mode VARCHAR(50),
-    customer_id VARCHAR(20),
-    customer_name VARCHAR(100),
-    segment VARCHAR(50),
+CREATE TABLE users (
+    customer_id VARCHAR(20) PRIMARY KEY,
+    customer_name TEXT NOT NULL,
+    segment VARCHAR(50) NOT NULL,
     country VARCHAR(50),
     city VARCHAR(50),
     state VARCHAR(50),
     postal_code VARCHAR(20),
-    region VARCHAR(20),
-    product_id VARCHAR(20),
-    category VARCHAR(50),
-    sub_category VARCHAR(50),
-    product_name TEXT,
+    region VARCHAR(50)
+);
+CREATE TABLE products (
+    product_id VARCHAR(30) PRIMARY KEY,
+    product_name TEXT NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    sub_category VARCHAR(50) NOT NULL
+);
+CREATE TABLE orders (
+    row_id SERIAL PRIMARY KEY,
+    order_id VARCHAR(30) NOT NULL,
+    order_date DATE NOT NULL,
+    ship_date DATE,
+    ship_mode VARCHAR(50),
+    customer_id VARCHAR(20) REFERENCES users(customer_id),
+    product_id VARCHAR(30) REFERENCES products(product_id),
     sales NUMERIC(10, 2),
-    quantity INT,
+    quantity INTEGER,
     discount NUMERIC(5, 2),
-    profit NUMERIC(10, 2),
-    created_at TIMESTAMP DEFAULT NOW()
+    profit NUMERIC(10, 4)
 );
 ```
 
@@ -135,6 +140,6 @@ CREATE TABLE superstore_sales (
 
 ### 👤 Author
 
-Suyeon Kim  
+Suyeon Kim
 Data Engineering Student | Ex-Java Backend Dev  
 📍 Vancouver, Canada
