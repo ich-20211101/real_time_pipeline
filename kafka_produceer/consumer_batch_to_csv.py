@@ -22,7 +22,8 @@ consumer = KafkaConsumer(
 records = []
 
 
-print("📥 Receiving messages...")
+print("📥 Kafka Consumer Started")
+print("📡 Listening for messages...\n")
 
 for message in consumer:
     records.append(message.value)
@@ -33,14 +34,12 @@ for message in consumer:
         # 배치 번호
         existing_batches = [name for name in os.listdir(DATA_DIR) if name.startswith('batch_') and name.endswith('.csv')]
         batch_number = len(existing_batches) + 1
-
         # 파일 경로
         file_path = os.path.join(DATA_DIR, f'batch_{batch_number}.csv')
-
         # 파일 저장
         df.to_csv(file_path, index = False)
 
-        print(f"✅ Saved {len(records)} records to {file_path}")
+        print(f"💾 Batch {batch_number:02} → ✅ Saved {len(records)} records to: {file_path}")
 
         # 다음 배치 준비
         records = []
