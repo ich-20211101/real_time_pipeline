@@ -97,26 +97,25 @@ This table was designed to capture essential sales metrics and metadata for anal
 ```sql
 CREATE TABLE users (
     customer_id VARCHAR(20) PRIMARY KEY,
-    customer_name TEXT NOT NULL,
-    segment VARCHAR(50) NOT NULL,
-    country VARCHAR(50),
-    city VARCHAR(50),
+    segment VARCHAR(50),
+    region VARCHAR(50),
     state VARCHAR(50),
-    postal_code VARCHAR(20),
-    region VARCHAR(50)
+    city VARCHAR(50)
 );
+
 CREATE TABLE products (
     product_id VARCHAR(30) PRIMARY KEY,
-    product_name TEXT NOT NULL,
-    category VARCHAR(50) NOT NULL,
-    sub_category VARCHAR(50) NOT NULL
+    category VARCHAR(50),
+    sub_category VARCHAR(50)
 );
+
 CREATE TABLE orders (
     row_id SERIAL PRIMARY KEY,
     order_id VARCHAR(30) NOT NULL,
     order_date DATE NOT NULL,
     ship_date DATE,
     ship_mode VARCHAR(50),
+    order_priority VARCHAR(30),
     customer_id VARCHAR(20) REFERENCES users(customer_id),
     product_id VARCHAR(30) REFERENCES products(product_id),
     sales NUMERIC(10, 2),
