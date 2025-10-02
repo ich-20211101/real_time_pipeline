@@ -2,6 +2,8 @@ from kafka import KafkaConsumer
 import pandas as pd
 import json
 import os
+import uuid
+from datetime import datetime
 
 TOPIC_NAME = "sales_topic"
 BOOTSTRAP_SERVER = "localhost:9092"
@@ -31,15 +33,16 @@ for message in consumer:
     if len(records) == BATCH_SIZE:
         df = pd.DataFrame(records)
 
-        # 배치 번호
-        existing_batches = [name for name in os.listdir(DATA_DIR) if name.startswith('batch_') and name.endswith('.csv')]
-        batch_number = len(existing_batches) + 1
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        unique_id = uuid.uuid4().hex[:6]
+        filename = f"batch_{timestamp}_{unique_id}.csv"
+
         # 파일 경로
-        file_path = os.path.join(DATA_DIR, f'batch_{batch_number}.csv')
+        file_path = os.path.join(DATA_DIR, filename)
         # 파일 저장
         df.to_csv(file_path, index = False)
 
-        print(f"💾 Batch {batch_number:02} → ✅ Saved {len(records)} records to: {file_path}")
+        print(f"💾 Batch: {filename} → ✅ Saved {len(records)} records to: {file_path}")
 
         # 다음 배치 준비
         records = []
