@@ -136,6 +136,9 @@ CREATE TABLE orders (
 	•	Set KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 for host access
 
 ---
+### 📊 Executive Sales Dashboard (Tableau Public)
+[🔗 View Interactive Dashboard](https://public.tableau.com/views/SalesCustomerInsightsTableauProject/ExecutiveOverview?:language=en-US&:sid=&:redirect=auth&publish=yes&showOnboarding=true&:display_count=n&:origin=viz_share_link)
+---
 
 ### 👤 Author
 
