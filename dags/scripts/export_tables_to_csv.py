@@ -1,8 +1,7 @@
 import pandas as pd
 import os
-import socket
 
-from sqlalchemy_utils.types.pg_composite import psycopg2
+import psycopg2
 
 IS_DOCKER = os.path.exists('/.dockerenv')
 
@@ -21,6 +20,10 @@ OUTPUT_DIR = '/opt/airflow/data' if IS_DOCKER else os.path.join(os.getcwd(), '..
 def export_table_to_csv(conn, table_name):
     query = f"SELECT * FROM {table_name};"
     df = pd.read_sql(query, conn)
+
+    if df.empty:
+        print(f"⚠️ No data in table '{table_name}'. Skipping export.")
+        return
 
     output_path = os.path.join(OUTPUT_DIR, f'{table_name}.csv')
     df.to_csv(output_path, index=False)
